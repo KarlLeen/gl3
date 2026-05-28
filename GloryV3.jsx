@@ -325,6 +325,206 @@ function LivePulse({ color = C.green, size = 8 }) {
   </span>;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   CINEMATIC FOOTBALL ATMOSPHERE  — original SVG/CSS environment layers.
+   No FIFA / federation / player / trophy-replica assets. All abstract.
+   Every layer is pointer-events:none and sits behind content.
+═══════════════════════════════════════════════════════════════════════ */
+
+/* Floodlight rig — twin beams raking from the top corners */
+function Floodlights({ color = C.gold, opacity = 1 }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", opacity }}>
+      <div style={{ position: "absolute", top: -40, left: "12%", width: 260, height: "180%", background: `linear-gradient(180deg,${color}26,transparent 62%)`, transform: "rotate(14deg)", transformOrigin: "top center", filter: "blur(14px)", animation: "beam 7s ease-in-out infinite", mixBlendMode: "screen" }} />
+      <div style={{ position: "absolute", top: -40, right: "12%", width: 260, height: "180%", background: `linear-gradient(180deg,${C.white}1c,transparent 62%)`, transform: "rotate(-14deg)", transformOrigin: "top center", filter: "blur(14px)", animation: "beam 7s ease-in-out infinite 1.6s", mixBlendMode: "screen" }} />
+      {/* rig lamps */}
+      {[16, 84].map((x, i) => <div key={i} style={{ position: "absolute", top: 8, left: `${x}%`, transform: "translateX(-50%)", display: "flex", gap: 4 }}>{[0, 1, 2, 3].map((j) => <span key={j} style={{ width: 6, height: 5, borderRadius: 2, background: color, boxShadow: `0 0 8px ${color}`, opacity: .8, animation: `lampFlick ${3 + j * .4}s ease-in-out infinite ${j * .2}s` }} />)}</div>)}
+    </div>
+  );
+}
+
+/* Stadium tier + crowd silhouette band — concentric stands with speckled crowd */
+function CrowdStands({ height = 130, dim = .5 }) {
+  const dots = [];
+  for (let r = 0; r < 5; r++) for (let i = 0; i < 60; i++) dots.push(<circle key={`${r}-${i}`} cx={8 + i * 16} cy={14 + r * 18 + (i % 2) * 4} r={1.6} fill={[C.green, C.blue, C.gold, C.white, C.red][(i + r) % 5]} opacity={0.12 + ((i * r) % 5) * 0.04} />);
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height, pointerEvents: "none", opacity: dim, overflow: "hidden", maskImage: "linear-gradient(180deg,transparent,black 60%)" }}>
+      <svg width="100%" height={height} viewBox="0 0 960 130" preserveAspectRatio="xMidYMax slice" style={{ display: "block" }}>
+        {/* tier arcs */}
+        {[0, 1, 2].map((t) => <path key={t} d={`M0 ${130 - t * 30} Q480 ${90 - t * 34} 960 ${130 - t * 30}`} fill="none" stroke="rgba(255,255,255,.06)" strokeWidth="1" />)}
+        <g style={{ animation: "crowdSway 9s ease-in-out infinite" }}>{dots}</g>
+      </svg>
+    </div>
+  );
+}
+
+/* Pitch geometry floor — perspective field lines fading into distance */
+function PitchFloor({ color = C.green, opacity = .5 }) {
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "62%", pointerEvents: "none", opacity, overflow: "hidden", maskImage: "linear-gradient(0deg,black,transparent 88%)" }}>
+      <svg width="100%" height="100%" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax slice" style={{ display: "block" }}>
+        <defs><linearGradient id="pf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0" /><stop offset="100%" stopColor={color} stopOpacity=".5" /></linearGradient></defs>
+        {/* receding horizontal stripes */}
+        {[0, 1, 2, 3, 4, 5].map((i) => { const y = 60 + i * i * 8; return <rect key={i} x="0" y={y} width="800" height={i * i * 1.6 + 4} fill={color} opacity={0.015 + i * 0.01} />; })}
+        {/* converging verticals */}
+        {[-3, -2, -1, 0, 1, 2, 3].map((i) => <line key={i} x1={400 + i * 30} y1="60" x2={400 + i * 220} y2="300" stroke="url(#pf)" strokeWidth="1" />)}
+        {/* halfway arc */}
+        <ellipse cx="400" cy="300" rx="150" ry="46" fill="none" stroke={color} strokeOpacity=".3" strokeWidth="1.4" />
+      </svg>
+    </div>
+  );
+}
+
+/* LED perimeter board — scrolling luminous advertising band (generic GLORY copy) */
+function LedBoard({ messages = ["PREDICT · BACK YOUR BELIEF · CHASE GLORY", "ONE TOKEN · EVERY MATCH · $GLORY", "ROAD TO FINAL GLORY · 2026 CYCLE"], color = C.green }) {
+  const row = [...messages, ...messages, ...messages];
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 26, overflow: "hidden", pointerEvents: "none", background: `linear-gradient(180deg,transparent,${color}10)`, borderTop: `1px solid ${color}22`, display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 40, whiteSpace: "nowrap", animation: "scrollX 24s linear infinite", width: "max-content" }}>
+        {row.map((m, i) => <span key={i} style={{ fontFamily: FD, fontWeight: 800, fontSize: 11, letterSpacing: 2, color: `${color}bb`, textShadow: `0 0 8px ${color}66` }}>{m}</span>)}
+      </div>
+    </div>
+  );
+}
+
+/* Atmospheric smoke / flare haze drifting upward */
+function SmokeHaze({ color = C.green }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", mixBlendMode: "screen" }}>
+      {[["8%", color, 0], ["68%", C.blue, 2.5], ["40%", C.gold, 1.2]].map(([x, c, d], i) => (
+        <div key={i} style={{ position: "absolute", bottom: -120, left: x, width: 220, height: 260, background: `radial-gradient(circle,${c}1a,transparent 70%)`, filter: "blur(30px)", animation: `drift 14s ease-in-out infinite ${d}s` }} />
+      ))}
+    </div>
+  );
+}
+
+/* Player silhouettes — cinematic anonymous athlete figures (original, layered).
+   Built from articulated body segments for a premium AAA-render feel. */
+function PlayerSilhouette({ pose = "striker", color = "#040c16", size = 200, glow = C.gold, jersey = C.blue, style = {}, animate = false }) {
+  const uid = `sil_${pose}_${Math.round(size)}`;
+  // Each pose = ordered limb/torso polylines (stroke-based "thick-limb" body) + head + jersey torso path.
+  const figures = {
+    // striker — exploding into a shot, planted leg + driven kicking leg
+    striker: { head: [50, 14, 7], torso: "M44 22 L58 24 L62 52 L48 56 L40 30 Z", limbs: [[58, 26, 76, 18, 88, 30], [44, 26, 30, 40, 22, 30], [50, 54, 44, 78, 58, 96], [54, 52, 74, 64, 92, 52]], boot: [92, 52] },
+    // bicycle kick — inverted airborne scissor
+    bicycle: { head: [40, 70, 7], torso: "M36 60 L52 54 L66 66 L54 80 L40 80 Z", limbs: [[52, 56, 70, 44, 86, 30], [40, 64, 26, 56, 14, 64], [60, 70, 80, 60, 96, 44], [50, 78, 46, 96, 60, 108]], boot: [96, 44] },
+    // sprint — full stride, arms pumping
+    sprint: { head: [54, 16, 7], torso: "M46 24 L60 26 L58 54 L46 56 L42 30 Z", limbs: [[58, 28, 78, 22, 86, 38], [46, 28, 28, 30, 18, 18], [52, 54, 64, 74, 60, 98], [48, 54, 30, 70, 22, 92]], boot: [60, 98] },
+    // goalkeeper — full horizontal dive
+    keeper: { head: [78, 30, 7], torso: "M64 36 L80 30 L86 46 L70 52 L60 44 Z", limbs: [[80, 34, 94, 22, 104, 28], [66, 40, 50, 40, 36, 34], [64, 48, 44, 56, 24, 58], [70, 50, 52, 64, 34, 72]], boot: [24, 58] },
+    // captain lift — raising abstract cup, triumphant
+    lift: { head: [50, 18, 7], torso: "M44 26 L58 26 L58 60 L44 60 Z", limbs: [[56, 28, 66, 14, 62, 2], [46, 28, 36, 14, 40, 2], [52, 58, 56, 82, 52, 104], [50, 58, 46, 82, 50, 104]], cup: true },
+    // celebration — knee-slide arms wide, roaring
+    celebrate: { head: [48, 22, 7], torso: "M42 30 L56 30 L58 56 L44 58 L40 34 Z", limbs: [[56, 32, 78, 24, 88, 10], [42, 32, 20, 26, 8, 14], [52, 56, 66, 74, 88, 80], [46, 56, 38, 78, 30, 96]], boot: [88, 80] },
+  };
+  const f = figures[pose] || figures.striker;
+  return (
+    <svg viewBox="0 0 110 120" width={size} height={size * 1.1} style={{ filter: `drop-shadow(0 8px 24px ${glow}55) drop-shadow(0 0 2px ${glow}33)`, ...style }} aria-hidden className={animate ? "g-player-loop" : undefined}>
+      <defs>
+        <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={glow} stopOpacity=".3" /><stop offset="42%" stopColor={color} stopOpacity=".96" /><stop offset="100%" stopColor="#01060c" /></linearGradient>
+        <linearGradient id={uid + "j"} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={jersey} stopOpacity=".85" /><stop offset="100%" stopColor={jersey} stopOpacity=".35" /></linearGradient>
+        <radialGradient id={uid + "rim"} cx="0.5" cy="0.3" r="0.7"><stop offset="0%" stopColor={glow} stopOpacity=".5" /><stop offset="100%" stopColor={glow} stopOpacity="0" /></radialGradient>
+      </defs>
+      {/* rim-light halo */}
+      <ellipse cx="55" cy="50" rx="48" ry="56" fill={`url(#${uid}rim)`} opacity=".5" />
+      {/* limbs as thick rounded strokes */}
+      <g stroke={`url(#${uid})`} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        {f.limbs.map((pts, i) => <polyline key={i} points={pts.reduce((a, v, j) => j % 2 ? a + "," + v + " " : a + v, "")} />)}
+      </g>
+      {/* torso (jersey) */}
+      <path d={f.torso} fill={`url(#${uid}j)`} stroke={glow} strokeOpacity=".35" strokeWidth="1" />
+      <path d={f.torso} fill={`url(#${uid})`} opacity=".5" />
+      {/* head */}
+      <circle cx={f.head[0]} cy={f.head[1]} r={f.head[2]} fill={`url(#${uid})`} stroke={glow} strokeOpacity=".4" strokeWidth="1" />
+      {/* boot accent / ball at striking foot */}
+      {f.boot && <circle cx={f.boot[0]} cy={f.boot[1]} r="6" fill="none" stroke={glow} strokeWidth="1.5" opacity=".9" style={animate ? { animation: "ballSpin 1.2s linear infinite" } : undefined} />}
+      {f.boot && <path d={`M${f.boot[0] - 3} ${f.boot[1]} l3 -3 3 3 -3 3 z`} fill={glow} opacity=".8" />}
+      {/* captain's cup */}
+      {f.cup && <g stroke={glow} strokeWidth="2" fill={`url(#${uid}j)`}><path d="M44 2 h12 v3 a6 6 0 0 1 -12 0 z" /><path d="M50 5 v4 M47 9 h6" /></g>}
+    </svg>
+  );
+}
+
+/* Cinematic hero athlete composition — large dramatic figure with motion accents */
+function HeroAthlete({ pose = "striker", glow = C.gold, jersey = C.blue, size = 360 }) {
+  return (
+    <div style={{ position: "relative", pointerEvents: "none" }}>
+      {/* dramatic backlight */}
+      <div style={{ position: "absolute", inset: "-20% -10%", background: `radial-gradient(ellipse at 50% 40%,${glow}22,transparent 65%)`, filter: "blur(20px)" }} />
+      {/* motion streaks behind figure */}
+      <svg viewBox="0 0 120 130" width={size} height={size * 1.08} style={{ position: "absolute", inset: 0, opacity: .4 }} aria-hidden>
+        {[20, 34, 48].map((y, i) => <line key={i} x1="2" y1={y} x2="46" y2={y + 6} stroke={glow} strokeWidth="1.5" strokeLinecap="round" opacity={.5 - i * .12} style={{ animation: `streak 1.8s ease-out infinite ${i * .2}s` }} />)}
+      </svg>
+      <PlayerSilhouette pose={pose} glow={glow} jersey={jersey} size={size} animate />
+    </div>
+  );
+}
+
+/* Animated football with passing-line trajectory */
+function BallMotion({ color = C.gold, w = 200, h = 90 }) {
+  return (
+    <svg viewBox="0 0 200 90" width={w} height={h} style={{ overflow: "visible" }} aria-hidden>
+      <defs><linearGradient id="passln" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={color} stopOpacity="0" /><stop offset="100%" stopColor={color} stopOpacity=".8" /></linearGradient></defs>
+      <path d="M6 80 Q100 -20 194 40" fill="none" stroke="url(#passln)" strokeWidth="2" strokeDasharray="4 5" style={{ animation: "dashFlow 1.4s linear infinite" }} />
+      <g style={{ animation: "ballArc 3.2s ease-in-out infinite" }}>
+        <circle r="7" fill="#0a141f" stroke={color} strokeWidth="1.5" style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
+        <path d="M-4 -2 l4 -3 4 3 -1.5 5 h-5 z" fill={color} opacity=".7" />
+      </g>
+    </svg>
+  );
+}
+
+/* Goal-net texture overlay */
+function GoalNet({ color = C.white, opacity = .06 }) {
+  return (
+    <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity, pointerEvents: "none" }} aria-hidden preserveAspectRatio="none">
+      <defs><pattern id="net" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="skewX(-8)"><path d="M0 0 L22 22 M22 0 L0 22" stroke={color} strokeWidth=".5" fill="none" /></pattern></defs>
+      <rect width="100%" height="100%" fill="url(#net)" />
+    </svg>
+  );
+}
+
+/* Cinematic rain — diagonal streaks for dramatic matchnight atmosphere */
+function RainFX({ count = 40, color = "rgba(180,210,255,.18)" }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", maskImage: "linear-gradient(180deg,black,transparent)" }}>
+      {[...Array(count)].map((_, i) => <span key={i} style={{ position: "absolute", top: "-12%", left: `${(i * 2.6) % 100}%`, width: 1, height: 40 + (i % 4) * 14, background: `linear-gradient(180deg,transparent,${color})`, transform: "rotate(12deg)", animation: `rainFall ${0.7 + (i % 5) * 0.12}s linear infinite ${(i % 7) * 0.1}s` }} />)}
+    </div>
+  );
+}
+
+/* Waving supporter scarves — stylized banner shapes that wave */
+function Scarves({ items = [[C.blue, C.gold], [C.green, C.white], [C.red, C.gold]] }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+      {items.map(([a, b], i) => (
+        <svg key={i} viewBox="0 0 120 40" width={120} style={{ position: "absolute", bottom: 30 + (i % 2) * 26, left: `${12 + i * 30}%`, opacity: .18, animation: `wave 5s ease-in-out infinite ${i * .7}s` }} aria-hidden>
+          <path d="M2 8 Q30 2 60 8 T118 8 L118 30 Q90 36 60 30 T2 30 Z" fill={a} />
+          <path d="M2 14 Q30 8 60 14 T118 14 L118 20 Q90 26 60 20 T2 20 Z" fill={b} opacity=".7" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/* Composite cinematic backdrop for hero blocks — stacks the layers */
+function StadiumScene({ accent = C.gold, players = null, smoke = true, scarves = false, led = true, rain = false, net = false, children }) {
+  return (
+    <>
+      <Floodlights color={accent} />
+      {smoke && <SmokeHaze color={accent} />}
+      {net && <GoalNet />}
+      <PitchFloor color={C.green} opacity={.55} />
+      <CrowdStands height={120} dim={.55} />
+      {rain && <RainFX />}
+      {scarves && <Scarves />}
+      {players}
+      {led && <LedBoard color={C.green} />}
+      {children}
+    </>
+  );
+}
+
 /* ─────────────────────── SHARED UI ─────────────────────── */
 function Btn({ children, variant = "primary", onClick, style = {}, size = "md" }) {
   const pad = size === "sm" ? "9px 16px" : size === "lg" ? "16px 32px" : "13px 24px";
@@ -396,9 +596,10 @@ function MarketCard({ m, onPredict, onOpen }) {
             const oc = [C.green, C.blue, C.gold][i % 3];
             return <div key={i} style={{ position: "relative", padding: "10px 13px", borderRadius: 10, border: `1px solid ${o === lead ? `${oc}33` : C.line}`, background: "rgba(255,255,255,.02)", overflow: "hidden" }}>
               <div style={{ position: "absolute", inset: 0, width: `${o.pct}%`, background: `linear-gradient(90deg,${oc}26,${oc}08)`, transition: "width .6s cubic-bezier(.16,1,.3,1)" }} />
+              {o === lead && <div style={{ position: "absolute", top: 0, bottom: 0, width: 40, left: 0, background: `linear-gradient(90deg,transparent,${oc}1f,transparent)`, animation: "scanWipe 3.4s ease-in-out infinite" }} />}
               <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{o.label} <span style={{ color: C.mute2, fontSize: 11 }}>· {o.pct}%</span></span>
-                <span style={{ color: oc, fontWeight: 800, fontFamily: FD, fontSize: 14 }}>{o.odds}</span>
+                <span style={{ color: oc, fontWeight: 800, fontFamily: FD, fontSize: 14, display: "inline-flex", alignItems: "center", gap: 4 }}>{o === lead && <Glyph name="trend" size={11} color={oc} style={{ animation: "oddsTick 2.2s ease-in-out infinite" }} />}{o.odds}</span>
               </div>
             </div>;
           })}
@@ -513,8 +714,11 @@ function PredictModal() {
 function SuccessScreen({ opt, amt, payout, close }) {
   return (
     <div style={{ padding: "44px 28px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-      {/* stadium light sweep */}
+      {/* GOAL-moment stadium light flash */}
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 50% 35%,${C.white},${C.gold}55,transparent 60%)`, animation: "goalFlash 1.1s ease-out forwards", pointerEvents: "none" }} />
       <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at 50% 0%,${C.gold}22,transparent 60%)`, animation: "fade .6s" }} />
+      {/* kickoff pulse rings */}
+      {[0, .25, .5].map((d, i) => <div key={i} style={{ position: "absolute", top: 66, left: "50%", marginLeft: -44, width: 88, height: 88, borderRadius: "50%", border: `2px solid ${C.gold}`, animation: `kickRing 1.4s ease-out ${d}s forwards`, pointerEvents: "none" }} />)}
       {[...Array(28)].map((_, i) => (
         <div key={i} style={{ position: "absolute", top: -10, left: `${(i * 3.6) % 100}%`, width: 7, height: 7, borderRadius: i % 2 ? 2 : 99, background: [C.gold, C.green, C.blue, C.red][i % 4], animation: `confetti ${1.6 + (i % 4) * .4}s ease-in ${(i % 6) * .08}s forwards` }} />
       ))}
@@ -694,10 +898,107 @@ function Ticker({ compact }) {
 
 /* ─────────────────────── PAGE WRAPPER ─────────────────────── */
 function Page({ children, wide }) {
-  return <main className="g-page" style={{ position: "relative", zIndex: 2, maxWidth: wide ? 1320 : 1240, margin: "0 auto", padding: "100px clamp(16px,4vw,48px) 60px", minHeight: "70vh", animation: "pageIn .5s cubic-bezier(.16,1,.3,1)" }}>{children}</main>;
+  const { route } = useApp();
+  return <main key={route} className="g-page" style={{ position: "relative", zIndex: 2, maxWidth: wide ? 1320 : 1240, margin: "0 auto", padding: "100px clamp(16px,4vw,48px) 60px", minHeight: "70vh", animation: "sceneCut .55s cubic-bezier(.16,1,.3,1)" }}>
+    {/* broadcast scan-wipe on scene change */}
+    <div key={"wipe" + route} style={{ position: "fixed", inset: 0, zIndex: 95, pointerEvents: "none", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, bottom: 0, width: "45%", left: 0, background: `linear-gradient(90deg,transparent,${C.green}10,${C.gold}14,transparent)`, animation: "scanWipe .7s cubic-bezier(.7,0,.3,1) forwards" }} />
+    </div>
+    {children}
+  </main>;
 }
 
 /* ═══════════════════════ PAGES ═══════════════════════ */
+
+/* Hero match card — the wordless product explainer: match + odds + community + volume + bracket */
+function HeroMatchCard({ onPredict, onOpen, cd }) {
+  const m = MARKETS[0]; // Argentina vs Brazil
+  const [tab, setTab] = useState(0);
+  return (
+    <div style={{ position: "relative" }}>
+      {/* floating bracket glimpse behind, top-right (kept inside bounds) */}
+      <div className="g-hide-lg" style={{ position: "absolute", top: -14, right: 4, transform: "rotate(2deg)", opacity: .92, zIndex: 1 }}>
+        <div style={{ background: "linear-gradient(160deg,rgba(13,28,46,.96),rgba(6,17,31,.98))", border: `1px solid ${C.gold}33`, borderRadius: 13, padding: "11px 13px", boxShadow: `0 20px 50px -20px ${C.black}` }}>
+          <div style={{ fontSize: 8.5, letterSpacing: 1, textTransform: "uppercase", color: C.mute2, fontWeight: 700, marginBottom: 7, display: "flex", alignItems: "center", gap: 4 }}><Glyph name="trophy" size={9} color={C.gold} /> Knockout bracket</div>
+          {[["ARG", C.blue, "FRA", C.blue], ["BRA", C.gold, "ESP", C.red]].map((row, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+              <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 5, background: i === 0 ? `${C.gold}1a` : "rgba(255,255,255,.03)", border: `1px solid ${i === 0 ? C.gold + "44" : C.line}` }}><NationChip code={row[0]} color={row[1]} size={8} /></span>
+              </span>
+              <Glyph name="chevR" size={9} color={C.mute2} />
+              <span style={{ padding: "2px 6px", borderRadius: 5, background: "rgba(255,255,255,.03)", border: `1px solid ${C.line}` }}><NationChip code={i === 0 ? "ARG" : "—"} color={C.blue} size={8} /></span>
+            </div>
+          ))}
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6, paddingTop: 6, borderTop: `1px solid ${C.line}` }}><Glyph name="crown" size={11} color={C.gold} glow /><span style={{ fontFamily: FD, fontWeight: 800, fontSize: 9, color: C.gold }}>YOUR FINAL PICK</span></div>
+        </div>
+      </div>
+
+      {/* main live match card */}
+      <div style={{ position: "relative", zIndex: 2, background: "linear-gradient(160deg,rgba(13,28,46,.97),rgba(6,17,31,.99))", border: `1px solid ${C.gold}40`, borderRadius: 20, overflow: "hidden", boxShadow: `0 30px 70px -28px ${C.black}, 0 0 40px -20px ${C.gold}55, inset 0 1px 0 rgba(255,255,255,.07)` }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1.5, background: `linear-gradient(90deg,transparent,${C.gold},transparent)` }} />
+        {/* scoreboard header */}
+        <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,59,59,.04)" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: FD, fontWeight: 800, fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", color: C.red }}><LivePulse size={6} color={C.red} /> Live Market</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: C.mute }}><Glyph name="clock" size={13} /> Closes <b style={{ color: C.white, fontFamily: FD }}>{String(cd.h).padStart(2, "0")}:{String(cd.m).padStart(2, "0")}:{String(cd.s).padStart(2, "0")}</b></span>
+        </div>
+        {/* country vs country */}
+        <div style={{ padding: "20px 18px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          {[["Argentina", "ARG", C.blue, "52%"], null, ["Brazil", "BRA", C.gold, "30%"]].map((t, i) => t === null ? (
+            <div key="vs" style={{ textAlign: "center", flexShrink: 0 }}>
+              <div style={{ fontFamily: FD, fontWeight: 800, fontSize: 13, color: C.mute2 }}>VS</div>
+              <div style={{ fontSize: 9.5, color: C.mute2, marginTop: 2 }}>Draw 18%</div>
+            </div>
+          ) : (
+            <div key={t[1]} style={{ flex: 1, textAlign: i === 0 ? "left" : "right" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: i === 0 ? "flex-start" : "flex-end", marginBottom: 6 }}><NationChip code={t[1]} color={t[2]} size={18} /></div>
+              <div style={{ fontFamily: FD, fontWeight: 700, fontSize: 14 }}>{t[0]}</div>
+              <div style={{ fontFamily: FD, fontWeight: 800, fontSize: 22, color: i === 0 ? C.green : C.gold }}>{t[3]}</div>
+              <div style={{ fontSize: 9.5, color: C.mute2, textTransform: "uppercase", letterSpacing: .5 }}>community backing</div>
+            </div>
+          ))}
+        </div>
+        {/* community split bar */}
+        <div style={{ padding: "0 18px 14px" }}>
+          <div style={{ height: 8, borderRadius: 99, overflow: "hidden", display: "flex", boxShadow: "inset 0 1px 2px rgba(0,0,0,.4)" }}>
+            <div style={{ width: "52%", background: `linear-gradient(90deg,${C.green},${C.green}aa)` }} />
+            <div style={{ width: "18%", background: "rgba(255,255,255,.15)" }} />
+            <div style={{ width: "30%", background: `linear-gradient(90deg,${C.gold}aa,${C.gold})` }} />
+          </div>
+        </div>
+        {/* prediction buttons (odds) */}
+        <div style={{ padding: "0 18px 14px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          {m.options.map((o, i) => {
+            const oc = [C.green, C.mute, C.gold][i];
+            return <button key={i} onClick={() => onPredict(m)} style={{ padding: "11px 8px", borderRadius: 11, border: `1px solid ${oc === C.mute ? C.line : oc + "44"}`, background: oc === C.mute ? "rgba(255,255,255,.03)" : `${oc}12`, color: C.white, cursor: "pointer", fontFamily: FB, transition: "all .2s", textAlign: "center" }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.borderColor = oc === C.mute ? C.mute2 : oc; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = oc === C.mute ? C.line : oc + "44"; }}>
+              <div style={{ fontSize: 10.5, color: C.mute, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{o.label}</div>
+              <div style={{ fontFamily: FD, fontWeight: 800, fontSize: 16, color: i === 1 ? C.white : oc }}>{o.odds}</div>
+            </button>;
+          })}
+        </div>
+        {/* footer: volume + predict CTA */}
+        <div style={{ padding: "13px 18px", borderTop: `1px solid ${C.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,.02)" }}>
+          <div style={{ display: "flex", gap: 16 }}>
+            <span style={{ fontSize: 11.5, color: C.mute }}>Pool <b style={{ color: C.gold, fontFamily: FD }}>{m.pool}</b></span>
+            <span style={{ fontSize: 11.5, color: C.mute, display: "flex", alignItems: "center", gap: 4 }}><Glyph name="trend" size={12} color={C.green} /> Vol <b style={{ color: C.green, fontFamily: FD }}>{m.vol}</b></span>
+          </div>
+          <Btn size="sm" onClick={() => onPredict(m)}>Predict <Glyph name="chevR" size={13} /></Btn>
+        </div>
+      </div>
+
+      {/* live activity ticker under the card */}
+      <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 9, padding: "9px 14px", borderRadius: 12, background: "rgba(0,255,136,.05)", border: `1px solid ${C.lineG}`, overflow: "hidden" }}>
+        <LivePulse size={6} />
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <div style={{ display: "flex", gap: 28, whiteSpace: "nowrap", animation: "scrollX 22s linear infinite", width: "max-content" }}>
+            {[...FEED, ...FEED].map((f, i) => <span key={i} style={{ fontSize: 11.5, color: C.mute }}><b style={{ color: C.white }}>{f.u}</b> {f.a} <b style={{ color: C.gold }}>{f.v}</b></span>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ---- ARENA ---- */
 function ArenaPage() {
@@ -706,34 +1007,63 @@ function ArenaPage() {
   const trending = MARKETS.filter((m) => m.hot || ["red-card", "keeper-hero"].includes(m.id)).slice(0, 5);
   return (
     <Page wide>
-      {/* hero */}
+      {/* hero — ONE cinematic broadcast scene: text, player, market all share the environment */}
       <Reveal>
-        <div style={{ position: "relative", borderRadius: 26, overflow: "hidden", padding: "clamp(28px,5vw,56px)", marginBottom: 28, background: "linear-gradient(135deg,#0a1b2e,#06111f)", border: `1px solid ${C.lineG}`, boxShadow: "inset 0 1px 0 rgba(255,255,255,.05)" }}>
-          <div style={{ position: "absolute", inset: 0, opacity: .3, backgroundImage: `linear-gradient(${C.green}10 1px,transparent 1px),linear-gradient(90deg,${C.green}10 1px,transparent 1px)`, backgroundSize: "50px 50px", maskImage: "radial-gradient(ellipse at 70% 40%,black,transparent 70%)" }} />
-          {/* stadium light sweep */}
-          <div style={{ position: "absolute", top: "-50%", left: "-20%", width: "60%", height: "200%", background: `linear-gradient(90deg,transparent,${C.gold}0a,transparent)`, transform: "rotate(20deg)", animation: "sweep 8s ease-in-out infinite" }} />
-          <div style={{ position: "absolute", top: -60, right: -40, width: 360, height: 360, background: `radial-gradient(circle,${C.gold}18,transparent 70%)`, filter: "blur(50px)", animation: "flood 6s ease-in-out infinite" }} />
-          <div className="g-arena-hero" style={{ position: "relative", display: "grid", gridTemplateColumns: "1.3fr .7fr", gap: 30, alignItems: "center" }}>
+        <div style={{ position: "relative", borderRadius: 26, overflow: "hidden", padding: "clamp(26px,4vw,52px)", marginBottom: 28, background: "radial-gradient(ellipse at 72% 30%,#11304d,#0a1b2e 55%,#050f1b)", border: `1px solid ${C.lineG}`, boxShadow: "inset 0 1px 0 rgba(255,255,255,.06)" }}>
+          {/* ── full-bleed stadium environment (spans the whole hero, not just one side) ── */}
+          <CrowdStands height={150} dim={.5} />
+          <Floodlights color={C.gold} opacity={.55} />
+          <SmokeHaze color={C.gold} />
+          {/* pitch perspective floor anchoring the whole scene */}
+          <div style={{ position: "absolute", inset: 0, opacity: .5, pointerEvents: "none" }}><PitchFloor color={C.green} opacity={.5} /></div>
+          {/* depth gradients: warm light pooling on the right where the match lives */}
+          <div style={{ position: "absolute", top: "-30%", right: "-8%", width: 620, height: 620, background: `radial-gradient(circle,${C.gold}1f,transparent 68%)`, filter: "blur(60px)", animation: "flood 7s ease-in-out infinite" }} />
+          <div style={{ position: "absolute", bottom: "-40%", left: "-6%", width: 520, height: 520, background: `radial-gradient(circle,${C.blue}18,transparent 70%)`, filter: "blur(60px)", animation: "flood 9s ease-in-out infinite 1.4s" }} />
+          {/* faint pitch grid tying both halves together */}
+          <div style={{ position: "absolute", inset: 0, opacity: .14, backgroundImage: `linear-gradient(${C.green}10 1px,transparent 1px),linear-gradient(90deg,${C.green}10 1px,transparent 1px)`, backgroundSize: "58px 58px", maskImage: "radial-gradient(ellipse at 60% 45%,black,transparent 80%)" }} />
+          {/* giant hero athlete bridging center → right, sitting INSIDE the scene */}
+          <div className="g-hide-sm" style={{ position: "absolute", right: "30%", bottom: -28, opacity: .9, zIndex: 1, pointerEvents: "none", maskImage: "linear-gradient(180deg,black 78%,transparent)", filter: "drop-shadow(0 20px 50px rgba(0,0,0,.55))" }}>
+            <HeroAthlete pose="striker" glow={C.gold} jersey={C.blue} size={440} />
+          </div>
+          {/* passing-line motion sweeping across the scene */}
+          <div className="g-hide-sm" style={{ position: "absolute", left: "22%", top: "20%", opacity: .5, zIndex: 1, pointerEvents: "none" }}><BallMotion color={C.gold} w={300} h={120} /></div>
+          {/* floating tactical radar — broadcast graphic, bottom-left depth */}
+          <div className="g-hide-sm" style={{ position: "absolute", left: 30, bottom: 26, opacity: .4, zIndex: 1, pointerEvents: "none" }}>
+            <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
+              <circle cx="60" cy="60" r="52" fill="none" stroke={`${C.green}40`} strokeWidth="1" />
+              <circle cx="60" cy="60" r="32" fill="none" stroke={`${C.green}30`} strokeWidth="1" />
+              <line x1="60" y1="60" x2="112" y2="60" stroke={`${C.green}30`} strokeWidth="1" />
+              <g style={{ transformOrigin: "60px 60px", animation: "radarSweep 4s linear infinite" }}><path d="M60 60 L112 60 A52 52 0 0 1 96 96 Z" fill={`${C.green}14`} /></g>
+            </svg>
+          </div>
+
+          {/* ── content grid: weighted right, vertically centered into the scene ── */}
+          <div className="g-arena-hero" style={{ position: "relative", zIndex: 3, display: "grid", gridTemplateColumns: ".92fr 1.18fr", gap: 30, alignItems: "center", minHeight: 440 }}>
+            {/* LEFT — headline + CTA */}
             <div>
-              <Pill color={C.green}><LivePulse size={6} /> Live Arena</Pill>
-              <h1 style={{ fontFamily: FD, fontWeight: 800, fontSize: "clamp(34px,5vw,58px)", lineHeight: 1.04, margin: "16px 0 14px", letterSpacing: "-1px" }}>One Token. Every Match. <span style={{ background: `linear-gradient(100deg,${C.gold},${C.green})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Infinite Glory.</span></h1>
-              <p style={{ fontSize: 16.5, color: C.mute, maxWidth: 480, lineHeight: 1.55, margin: "0 0 24px" }}>The real-time football prediction terminal. Back your belief with $GLORY across every match, player, and moment of the 2026 cycle.</p>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <Btn size="lg" onClick={() => nav("/markets")}>Enter the Markets <Glyph name="chevR" size={18} /></Btn>
-                <Btn size="lg" variant="green" onClick={() => nav("/tournament")}>Open Tournament</Btn>
+              <Pill color={C.green}><LivePulse size={6} /> Live football prediction markets</Pill>
+              <h1 style={{ fontFamily: FD, fontWeight: 800, fontSize: "clamp(32px,4.4vw,54px)", lineHeight: 1.02, margin: "16px 0 16px", letterSpacing: "-1.2px", textShadow: "0 2px 30px rgba(0,0,0,.5)" }}>Predict the world's biggest <span style={{ background: `linear-gradient(100deg,${C.gold},${C.green})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>football moments.</span></h1>
+              <p style={{ fontSize: 16, color: C.mute, maxWidth: 430, lineHeight: 1.55, margin: "0 0 24px" }}>Use $GLORY to predict match winners, goals, players, and full tournament brackets — in the ultimate Web3 football prediction arena.</p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
+                <Btn size="lg" onClick={() => nav("/markets")}><Glyph name="bolt" size={18} /> Start Predicting</Btn>
+                <Btn size="lg" variant="green" onClick={() => nav("/markets")}>Explore Markets</Btn>
+              </div>
+              <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
+                {[["63.4M", "$GLORY volume"], ["128", "live markets"], ["12,480", "predictions today"]].map(([v, l]) => (
+                  <div key={l}><div style={{ fontFamily: FD, fontWeight: 800, fontSize: 19, color: C.gold }}>{v}</div><div style={{ fontSize: 11.5, color: C.mute2 }}>{l}</div></div>
+                ))}
               </div>
             </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
-                <div style={{ width: 124, height: 124, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%,${C.gold},#c9942f)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: C.black, animation: "float 5s ease-in-out infinite, glow 4s ease-in-out infinite" }}>
-                  <Glyph name="trophy" size={36} color={C.black} /><span style={{ fontFamily: FD, fontWeight: 800, fontSize: 14, marginTop: 2 }}>$GLORY</span>
+            {/* RIGHT — match embedded in a broadcast-screen frame, fused to the scene */}
+            <div style={{ position: "relative", display: "flex", justifyContent: "center", minWidth: 0 }}>
+              {/* giant stadium screen housing: gives the card a "big screen on the gantry" feel */}
+              <div className="g-livebox" style={{ position: "relative", width: "100%", maxWidth: 420, borderRadius: 22, padding: 12, background: "linear-gradient(160deg,rgba(8,20,34,.72),rgba(4,12,22,.55))", border: `1px solid ${C.gold}26`, boxShadow: `0 40px 90px -34px #000, 0 0 60px -28px ${C.gold}55, inset 0 1px 0 rgba(255,255,255,.06)`, backdropFilter: "blur(6px)" }}>
+                {/* screen header lugs */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 6px 8px" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: FD, fontWeight: 800, fontSize: 9.5, letterSpacing: 2, textTransform: "uppercase", color: C.mute2 }}><span style={{ width: 6, height: 6, borderRadius: 99, background: C.red, boxShadow: `0 0 6px ${C.red}` }} /> Stadium Screen · Cam 01</span>
+                  <span style={{ display: "flex", gap: 4 }}>{[C.green, C.gold, C.blue].map((c, i) => <span key={i} style={{ width: 5, height: 5, borderRadius: 99, background: c, opacity: .8 }} />)}</span>
                 </div>
-              </div>
-              <div style={{ fontSize: 11, letterSpacing: 1.5, color: C.mute2, textTransform: "uppercase", textAlign: "center", marginBottom: 8 }}>Tournament kickoff in</div>
-              <div style={{ display: "flex", gap: 7, justifyContent: "center" }}>
-                {[["D", cd.d], ["H", cd.h], ["M", cd.m], ["S", cd.s]].map(([l, v]) => (
-                  <FlipDigit key={l} label={l} value={v} />
-                ))}
+                <HeroMatchCard onPredict={openPredict} onOpen={(id) => nav(`/markets/${id}`)} cd={cd} />
               </div>
             </div>
           </div>
@@ -747,6 +1077,16 @@ function ArenaPage() {
           <StatChip glyph="grid" label="Active Markets" value="128" color={C.blue} spark={[120, 122, 119, 124, 126, 125, 128]} />
           <StatChip glyph="target" label="Predictions Today" value="12,480" color={C.gold} spark={[8, 9, 11, 10, 12, 11, 12.5]} />
           <StatChip glyph="flame" label="Glory Index" value="87" suffix="↑" color={C.red} spark={[70, 74, 72, 80, 78, 84, 87]} />
+        </div>
+      </Reveal>
+
+      {/* slim kickoff countdown banner */}
+      <Reveal delay={.08}>
+        <div style={{ position: "relative", overflow: "hidden", borderRadius: 14, marginBottom: 36, padding: "12px 18px", background: `linear-gradient(100deg,${C.gold}10,transparent 60%)`, border: `1px solid ${C.gold}22`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 9, fontFamily: FD, fontWeight: 700, fontSize: 14 }}><Glyph name="trophy" size={17} color={C.gold} glow /> Tournament kickoff in</span>
+          <div style={{ display: "flex", gap: 7 }}>
+            {[["D", cd.d], ["H", cd.h], ["M", cd.m], ["S", cd.s]].map(([l, v]) => <FlipDigit key={l} label={l} value={v} />)}
+          </div>
         </div>
       </Reveal>
 
@@ -857,6 +1197,24 @@ function MarketsPage() {
   return (
     <Page wide>
       <SectionTitle eyebrow="The Arena" title="Prediction Markets" sub="Turn football opinions into on-chain predictions. Live markets, real odds energy, community sentiment — all settled in $GLORY." />
+      {/* matchday command center — broadcast control strip */}
+      <Reveal>
+        <div style={{ position: "relative", borderRadius: 18, overflow: "hidden", marginBottom: 16, padding: "18px 20px", background: "linear-gradient(120deg,#0a1b2e,#06111f)", border: `1px solid ${C.lineG}` }}>
+          <Floodlights color={C.green} opacity={.5} />
+          <LedBoard color={C.green} />
+          <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", paddingBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: FD, fontWeight: 800, fontSize: 13, letterSpacing: 1.5, textTransform: "uppercase", color: C.green }}><LivePulse size={7} /> Matchday Control</span>
+              <span style={{ fontSize: 12.5, color: C.mute }}>Live tournament feed</span>
+            </div>
+            <div style={{ display: "flex", gap: 18 }}>
+              {[["Live now", "3", C.red], ["Today", "8", C.gold], ["Open pools", "128", C.green]].map(([l, v, c]) => (
+                <div key={l} style={{ textAlign: "right" }}><div style={{ fontFamily: FD, fontWeight: 800, fontSize: 18, color: c }}>{v}</div><div style={{ fontSize: 10, color: C.mute2, textTransform: "uppercase", letterSpacing: .5 }}>{l}</div></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Reveal>
       {/* live ticker board strip */}
       <Reveal>
         <Card style={{ padding: "12px 18px", marginBottom: 18, display: "flex", alignItems: "center", gap: 16, overflow: "hidden" }}>
@@ -909,6 +1267,10 @@ function MarketDetailPage({ id }) {
       <button onClick={() => nav("/markets")} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: C.mute, cursor: "pointer", fontSize: 13.5, fontFamily: FB, marginBottom: 18 }}><Glyph name="arrowL" size={16} /> All markets</button>
       <Reveal>
         <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", padding: "clamp(26px,4vw,44px)", marginBottom: 24, background: "linear-gradient(135deg,#0a1b2e,#06111f)", border: `1px solid ${C.lineG}` }}>
+          <Floodlights color={C.gold} opacity={.6} />
+          <CrowdStands height={80} dim={.4} />
+          <div className="g-hide-sm" style={{ position: "absolute", right: "2%", bottom: -8, opacity: .42, zIndex: 0, pointerEvents: "none", maskImage: "linear-gradient(180deg,black,transparent 92%)" }}><HeroAthlete pose="celebrate" glow={C.gold} jersey={m.cc[0]} size={210} /></div>
+          <LedBoard color={C.green} />
           <div style={{ position: "absolute", inset: 0, opacity: .25, backgroundImage: `linear-gradient(${C.green}10 1px,transparent 1px),linear-gradient(90deg,${C.green}10 1px,transparent 1px)`, backgroundSize: "44px 44px", maskImage: "radial-gradient(ellipse at 50% 0%,black,transparent 75%)" }} />
           <div style={{ position: "absolute", top: "-50%", left: "-10%", width: "50%", height: "200%", background: `linear-gradient(90deg,transparent,${C.gold}08,transparent)`, transform: "rotate(20deg)", animation: "sweep 9s ease-in-out infinite" }} />
           <div style={{ position: "relative" }}>
@@ -1011,11 +1373,15 @@ function TournamentPage() {
     <Page wide>
       <Reveal>
         <div style={{ position: "relative", borderRadius: 26, overflow: "hidden", padding: "clamp(32px,5vw,64px)", marginBottom: 36, background: "linear-gradient(135deg,#0a1b2e,#041019)", border: `1px solid ${C.gold}22`, textAlign: "center" }}>
+          <StadiumScene accent={C.gold} smoke scarves rain players={<>
+            <div className="g-hide-sm" style={{ position: "absolute", left: "1%", bottom: 0, pointerEvents: "none", opacity: .9 }}><HeroAthlete pose="keeper" glow={C.blue} jersey={C.blue} size={250} /></div>
+            <div className="g-hide-sm" style={{ position: "absolute", right: "1%", bottom: 0, pointerEvents: "none", opacity: .95 }}><HeroAthlete pose="lift" glow={C.gold} jersey={C.gold} size={290} /></div>
+          </>} />
           <div style={{ position: "absolute", inset: 0, opacity: .3, backgroundImage: `radial-gradient(circle at 50% 120%,${C.gold}22,transparent 60%)` }} />
           {[...Array(6)].map((_, i) => <div key={i} style={{ position: "absolute", top: "-20%", left: `${10 + i * 16}%`, width: 2, height: "140%", background: `linear-gradient(180deg,transparent,${C.green}33,transparent)`, animation: `flood ${4 + i}s ease-in-out infinite ${i * .5}s` }} />)}
           <div style={{ position: "relative" }}>
             <Pill color={C.gold}><Glyph name="trophy" size={12} color={C.gold} /> Glory Cup · 2026 Cycle</Pill>
-            <h1 style={{ fontFamily: FD, fontWeight: 800, fontSize: "clamp(36px,6vw,68px)", margin: "16px 0 12px", letterSpacing: "-1px" }}>The Tournament Arena</h1>
+            <h1 style={{ fontFamily: FD, fontWeight: 800, fontSize: "clamp(36px,6vw,68px)", margin: "16px 0 12px", letterSpacing: "-1px" }}>The Road to Glory</h1>
             <p style={{ fontSize: 17, color: C.mute, maxWidth: 560, margin: "0 auto 24px", lineHeight: 1.55 }}>Fill your bracket, race the Golden Boot, and battle nation vs nation. The biggest prediction stage on earth.</p>
             <div style={{ display: "flex", gap: 7, justifyContent: "center" }}>
               {[["DAYS", cd.d], ["HRS", cd.h], ["MIN", cd.m], ["SEC", cd.s]].map(([l, v]) => <FlipDigit key={l} label={l} value={v} />)}
@@ -1527,6 +1893,46 @@ function Router() {
   }
 }
 
+/* Ambient stadium sound — WebAudio-generated crowd rumble, no external files */
+function AmbientSound() {
+  const [on, setOn] = useState(false);
+  const ref = useRef(null);
+  const toggle = useCallback(() => {
+    if (!on) {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        const ac = new Ctx();
+        // filtered noise = distant crowd rumble
+        const buf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.6;
+        const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+        const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 420; lp.Q.value = 0.6;
+        const hp = ac.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 90;
+        const gain = ac.createGain(); gain.gain.value = 0; gain.gain.linearRampToValueAtTime(0.05, ac.currentTime + 1.2);
+        // slow swell LFO for crowd-surge feel
+        const lfo = ac.createOscillator(); lfo.frequency.value = 0.08;
+        const lfoGain = ac.createGain(); lfoGain.gain.value = 0.025;
+        lfo.connect(lfoGain); lfoGain.connect(gain.gain);
+        src.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(ac.destination);
+        src.start(); lfo.start();
+        ref.current = { ac, gain };
+        setOn(true);
+      } catch (e) { /* audio unsupported */ }
+    } else {
+      const r = ref.current;
+      if (r) { try { r.gain.gain.linearRampToValueAtTime(0, r.ac.currentTime + 0.4); setTimeout(() => r.ac.close(), 500); } catch (e) {} ref.current = null; }
+      setOn(false);
+    }
+  }, [on]);
+  return (
+    <button onClick={toggle} aria-label="Toggle stadium ambience" style={{ position: "fixed", bottom: 20, right: 18, zIndex: 130, width: 42, height: 42, borderRadius: 12, border: `1px solid ${on ? C.green + "55" : C.line}`, background: on ? `${C.green}14` : "rgba(2,6,23,.7)", backdropFilter: "blur(10px)", color: on ? C.green : C.mute, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .25s", boxShadow: `0 8px 24px -10px ${C.black}` }} className="g-sound-toggle">
+      <Glyph name="volume" size={19} glow={on} />
+      {on && <span style={{ position: "absolute", inset: -1, borderRadius: 12, border: `1px solid ${C.green}`, animation: "kickRing 2s ease-out infinite", pointerEvents: "none" }} />}
+    </button>
+  );
+}
+
 /* ─────────────────────── ROOT ─────────────────────── */
 function GloryApp() {
   const [route, nav] = useHashRoute();
@@ -1562,8 +1968,32 @@ function GloryApp() {
           @keyframes fadeUp{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
           @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
           @keyframes sweep{0%,100%{transform:translateX(-30%) rotate(20deg);opacity:0}50%{transform:translateX(60%) rotate(20deg);opacity:1}}
+          @keyframes beam{0%,100%{opacity:.5;transform:rotate(14deg) scaleY(1)}50%{opacity:1;transform:rotate(11deg) scaleY(1.06)}}
+          @keyframes lampFlick{0%,100%{opacity:.85}48%{opacity:.85}50%{opacity:.45}52%{opacity:.9}}
+          @keyframes crowdSway{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+          @keyframes drift{0%{transform:translateY(0) scale(1);opacity:0}30%{opacity:.7}100%{transform:translateY(-180px) scale(1.5);opacity:0}}
+          @keyframes wave{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
+          @keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-1px,1px)}75%{transform:translate(1px,-1px)}}
           @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
           @keyframes feedIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+          /* ── football broadcast motion ── */
+          @keyframes sceneCut{0%{opacity:0;transform:translateY(14px) scale(.985);filter:blur(3px)}60%{filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1)}}
+          @keyframes scanWipe{0%{transform:translateX(-100%)}100%{transform:translateX(220%)}}
+          @keyframes oddsTick{0%,100%{transform:translateY(0);opacity:1}45%{transform:translateY(-2px);opacity:.7}}
+          @keyframes goalFlash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+          @keyframes kickRing{0%{transform:scale(.4);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+          @keyframes ballRoll{0%{transform:translateX(-30px) rotate(0)}100%{transform:translateX(30px) rotate(360deg)}}
+          @keyframes radarSweep{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+          @keyframes camDrift{0%,100%{transform:scale(1.02) translate(0,0)}50%{transform:scale(1.04) translate(-6px,3px)}}
+          @keyframes volPulse{0%,100%{opacity:.5;transform:scaleY(.85)}50%{opacity:1;transform:scaleY(1.15)}}
+          @keyframes flashPhoto{0%,97%,100%{opacity:0}98%{opacity:.55}}
+          @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important}}
+          @keyframes ballSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+          @keyframes ballArc{0%{transform:translate(6px,80px)}50%{transform:translate(100px,12px)}100%{transform:translate(194px,40px)}}
+          @keyframes dashFlow{to{stroke-dashoffset:-18}}
+          @keyframes streak{0%{opacity:0;transform:translateX(8px)}40%{opacity:.6}100%{opacity:0;transform:translateX(-12px)}}
+          @keyframes rainFall{from{transform:translateY(-40px) rotate(12deg)}to{transform:translateY(120px) rotate(12deg)}}
+          @keyframes playerBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
           *{box-sizing:border-box;}
           ::selection{background:${C.gold};color:${C.black};}
           input::placeholder{color:rgba(248,250,252,.3);}
@@ -1572,18 +2002,25 @@ function GloryApp() {
           ::-webkit-scrollbar-track{background:${C.black}}
           ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:9px}
           ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18)}
+          @media(max-width:1100px){
+            .g-hide-lg{display:none!important}
+          }
           @media(max-width:980px){
             .g-arena-grid,.g-detail-grid,.g-tourn-grid,.g-detail-an{grid-template-columns:1fr!important}
             .g-cols-3{grid-template-columns:1fr 1fr!important}
-            .g-arena-hero{grid-template-columns:1fr!important}
+            .g-arena-hero{grid-template-columns:1fr!important;text-align:left;row-gap:8px!important;min-height:0!important}
+            .g-livebox{max-width:440px!important;margin:0 auto}
           }
           @media(max-width:760px){
             .g-desk{display:none!important}
             .g-mob{display:flex!important}
+            .g-hide-sm{display:none!important}
+            .g-sound-toggle{bottom:74px!important}
             .g-cols-2,.g-cols-3,.g-cols-4,.g-foot-grid{grid-template-columns:1fr!important}
             .g-lb-head,.g-lb-row{grid-template-columns:38px 1.4fr .9fr .8fr!important}
             .g-lb-head span:nth-child(5),.g-lb-head span:nth-child(6),.g-lb-row span:nth-child(5),.g-lb-row span:nth-child(6){display:none!important}
             .g-page{padding-bottom:90px!important}
+            .g-livebox{max-width:100%!important}
           }
           @media(max-width:480px){ .g-cols-4{grid-template-columns:1fr 1fr!important} }
         `}</style>
@@ -1593,9 +2030,19 @@ function GloryApp() {
           <div style={{ position: "absolute", top: "-8%", left: "18%", width: 420, height: 420, background: `radial-gradient(circle,${C.green}1c,transparent 70%)`, filter: "blur(50px)", animation: "flood 6s ease-in-out infinite" }} />
           <div style={{ position: "absolute", top: "35%", right: "4%", width: 460, height: 460, background: `radial-gradient(circle,${C.blue}1c,transparent 70%)`, filter: "blur(60px)", animation: "flood 8s ease-in-out infinite 1s" }} />
           <div style={{ position: "absolute", bottom: "2%", left: "2%", width: 480, height: 480, background: `radial-gradient(circle,${C.gold}14,transparent 70%)`, filter: "blur(70px)", animation: "flood 7s ease-in-out infinite 2s" }} />
+          {/* distant arena architecture silhouette */}
+          <svg width="100%" height="42%" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" style={{ position: "absolute", bottom: 0, left: 0, opacity: .5, maskImage: "linear-gradient(180deg,transparent,black 70%)" }} aria-hidden>
+            <path d="M0 320 V150 Q220 70 460 96 Q720 124 980 96 Q1220 70 1440 150 V320 Z" fill="none" stroke="rgba(0,255,136,.06)" strokeWidth="1" />
+            <path d="M0 320 V190 Q220 120 460 142 Q720 166 980 142 Q1220 120 1440 190 V320 Z" fill="rgba(6,17,31,.5)" stroke="rgba(255,255,255,.04)" strokeWidth="1" />
+            {/* floodlight pylons */}
+            {[140, 1300].map((x, i) => <g key={i}><line x1={x} y1="150" x2={x} y2="40" stroke="rgba(255,255,255,.07)" strokeWidth="2" /><rect x={x - 26} y="26" width="52" height="18" rx="3" fill="rgba(255,209,102,.08)" stroke="rgba(255,209,102,.2)" /></g>)}
+          </svg>
+          {/* faint pitch line geometry overlay across whole app */}
+          <div style={{ position: "absolute", inset: 0, opacity: .04, backgroundImage: `linear-gradient(${C.green} 1px,transparent 1px),linear-gradient(90deg,${C.green} 1px,transparent 1px)`, backgroundSize: "120px 120px", maskImage: "radial-gradient(ellipse at 50% 30%,black,transparent 80%)" }} />
         </div>
 
         <Header />
+        <AmbientSound />
         <MobileNavOverlay />
         <Router />
         <Footer />
